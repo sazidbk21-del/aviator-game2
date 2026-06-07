@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🎮 অ্যাডমিন কন্ট্রোল প্যানেল</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .admin-container {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 900px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+        }
+        h1 {
+            text-align: center;
+            color: #1e3c72;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        .admin-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #ddd;
+        }
+        .admin-tab-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-weight: bold;
+            color: #999;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-size: 16px;
+        }
+        .admin-tab-btn:hover {
+            color: #1e3c72;
+        }
+        .admin-tab-btn.active {
+            color: #1e3c72;
+            border-bottom-color: #1e3c72;
+        }
+        .admin-tab-content {
+            display: none;
+        }
+        .admin-tab-content.active {
+            display: block;
+        }
+        .control-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            border-left: 4px solid #1e3c72;
+        }
+        .section-title {
+            font-size: 18px;
+            font-weight: bold;
+            color: #1e3c72;
+            margin-bottom: 15px;
+        }
+        .control-group {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        .control-group.full {
+            grid-template-columns: 1fr;
+        }
+        label {
+            display: block;
+            color: #333;
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input[type="number"], input[type="text"], select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        input[type="number"]:focus, input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #1e3c72;
+            box-shadow: 0 0 5px rgba(30, 60, 114, 0.2);
+        }
+        button {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 15px;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+            color: white;
+        }
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(30, 60, 114, 0.4);
+        }
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+        .btn-danger:hover {
+            background: #c82333;
+        }
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+        .btn-success:hover {
+            background: #218838;
+        }
+        .stat-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            text-align: center;
+            border: 2px solid #e0e0e0;
+        }
+        .stat-label {
+            color: #666;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1e3c72;
+        }
+        .message {
+            padding: 12px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            display: none;
+            text-align: center;
+            font-weight: bold;
+        }
+        .message.show {
+            display: block;
+        }
+        .message.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        .message.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        .player-list {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        .player-item {
+            padding: 12px;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .player-item:last-child {
+            border-bottom: none;
+        }
+        .player-info {
+            flex: 1;
+        }
+        .player-name {
+            font-weight: bold;
+            color: #333;
+        }
+        .player-balance {
+            color: #666;
+            font-size: 14px;
+        }
+        .action-buttons {
+            display: flex;
+            gap: 5px;
+        }
+        .action-buttons button {
+            width: auto;
+            padding: 6px 12px;
+            font-size: 12px;
+        }
+        .alert-box {
+            background: #fff3cd;
+            color: #856404;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #ffc107;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-container">
+        <h1>🎮 অ্যাডমিন কন্ট্রোল প্যানেল</h1>
+
+        <div class="admin-tabs">
+            <button class="admin-tab-btn active" onclick="switchAdminTab('dashboard')">📊 ড্যাশবোর্ড</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('game-control')">🎮 গেম কন্ট্রোল</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('players')">👥 প্লেয়ার ম্যানেজ</button>
+            <button class="admin-tab-btn" onclick="switchAdminTab('settings')">⚙️ সেটিংস</button>
+        </div>
+
+        <!-- ড্যাশবোর্ড ট্যাব -->
+        <div id="dashboard" class="admin-tab-content active">
+            <div id="dashboardMessage" class="message"></div>
+
+            <div class="control-section">
+                <div class="section-title">📈 সিস্টেম স্ট্যাটিস্টিক্স</div>
+                <div class="stat-row">
+                    <div class="stat-card">
+                        <div class="stat-label">মোট প্লেয়ার</div>
+                        <div class="stat-value" id="totalPlayers">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">মোট ব্যালেন্স</div>
+                        <div class="stat-value">৳<span id="totalBalance">0</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">চলমান গেম</div>
+                        <div class="stat-value" id="activeGames">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">⚡ দ্রুত অ্যাকশন</div>
+                <button class="btn-primary" onclick="refreshStats()">🔄 স্ট্যাটিস্টিক্স রিফ্রেশ করুন</button>
+                <button class="btn-danger" style="margin-top: 10px;" onclick="resetAllData()">⚠️ সব ডেটা রিসেট করুন</button>
+            </div>
+        </div>
+
+        <!-- গেম কন্ট্রোল ট্যাব -->
+        <div id="game-control" class="admin-tab-content">
+            <div id="gameControlMessage" class="message"></div>
+
+            <div class="alert-box">
+                ⚠️ <strong>গুরুত্বপূর্ণ:</strong> পরবর্তী ক্রাশ মাল্টিপ্লায়ার এখানে সেট করুন। প্লেয়ার এটি দেখতে পাবে।
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">🎯 ক্রাশ মাল্টিপ্লায়ার সেট করুন</div>
+                <div class="control-group full">
+                    <label>পরবর্তী ক্রাশ মাল্টিপ্লায়ার (1.0x - 100.0x)</label>
+                    <input type="number" id="crashMultiplier" placeholder="যেমন: 5.5" min="1" max="100" step="0.1" value="2.0">
+                </div>
+                <button class="btn-success" onclick="setCrashMultiplier()">✅ ক্রাশ মাল্টিপ্লায়ার সেট করুন</button>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">🎮 গেম ইভেন্ট ট্রিগার</div>
+                <div class="control-group">
+                    <button class="btn-primary" onclick="triggerGameStart()">▶️ গেম শুরু করুন</button>
+                    <button class="btn-danger" onclick="triggerGameCrash()">���� গেম ক্র্যাশ করুন</button>
+                </div>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">📊 বর্তমান গেম স্ট্যাটাস</div>
+                <div class="stat-row">
+                    <div class="stat-card">
+                        <div class="stat-label">বর্তমান মাল্টিপ্লায়ার</div>
+                        <div class="stat-value" id="currentMultiplier">1.00x</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">পরবর্তী ক্রাশ</div>
+                        <div class="stat-value" id="nextCrash">2.00x</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">গেম স্ট্যাটাস</div>
+                        <div class="stat-value" id="gameStatus">⏹️ বন্ধ</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- প্লেয়ার ম্যানেজমেন্ট ট্যাব -->
+        <div id="players" class="admin-tab-content">
+            <div id="playersMessage" class="message"></div>
+
+            <div class="control-section">
+                <div class="section-title">➕ নতুন প্লেয়ার যোগ করুন</div>
+                <div class="control-group">
+                    <div>
+                        <label>প্লেয়ার আইডি / নাম</label>
+                        <input type="text" id="playerName" placeholder="যেমন: Player123">
+                    </div>
+                    <div>
+                        <label>প্রাথমিক ব্যালেন্স (৳)</label>
+                        <input type="number" id="playerBalance" placeholder="যেমন: 1000" min="0">
+                    </div>
+                </div>
+                <button class="btn-success" onclick="addPlayer()">✅ প্লেয়ার যোগ করুন</button>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">👥 প্লেয়ার তালিকা</div>
+                <div class="player-list" id="playersList"></div>
+            </div>
+        </div>
+
+        <!-- সেটিংস ট্যাব -->
+        <div id="settings" class="admin-tab-content">
+            <div id="settingsMessage" class="message"></div>
+
+            <div class="control-section">
+                <div class="section-title">⚙️ গেম সেটিংস</div>
+                <div class="control-group">
+                    <div>
+                        <label>মিনিমাম বেট (৳)</label>
+                        <input type="number" id="minBet" placeholder="যেমন: 100" min="1" value="100">
+                    </div>
+                    <div>
+                        <label>ম্যাক্সিমাম বেট (৳)</label>
+                        <input type="number" id="maxBet" placeholder="যেমন: 50000" min="1" value="50000">
+                    </div>
+                </div>
+                <button class="btn-primary" onclick="saveBetSettings()">💾 বেট সেটিংস সেভ করুন</button>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">📱 পেমেন্ট সেটিংস</div>
+                <div class="control-group full">
+                    <label>বিকাশ / নগদ নম্বর</label>
+                    <input type="text" id="paymentNumber" placeholder="যেমন: 01333900587" value="01333900587">
+                </div>
+                <button class="btn-primary" onclick="savePaymentNumber()">💾 পেমেন্ট নম্বর সেভ করুন</button>
+            </div>
+
+            <div class="control-section">
+                <div class="section-title">🔐 ড্যাং��ার জোন</div>
+                <div class="alert-box">
+                    ⚠️ এই অপারেশনগুলো পুনরাবৃত্তি করা যাবে না!
+                </div>
+                <button class="btn-danger" onclick="clearAllDeposits()">🗑️ সব ডিপোজিট রিকর্ড ডিলিট করুন</button>
+                <button class="btn-danger" style="margin-top: 10px;" onclick="clearAllWithdraws()">🗑️ সব উইথড্র রিকর্ড ডিলিট করুন</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'playerBalance';
+        const PLAYERS_KEY = 'players_list';
+        const CRASH_KEY = 'crashMultiplier';
+        const DEPOSITS_KEY = 'deposits_list';
+        const WITHDRAWS_KEY = 'withdraws_list';
+        const GAME_STATUS_KEY = 'gameStatus';
+
+        function switchAdminTab(tabName) {
+            document.querySelectorAll('.admin-tab-content').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.admin-tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            if (tabName === 'dashboard') refreshStats();
+            if (tabName === 'players') loadPlayersList();
+            if (tabName === 'game-control') updateGameStatus();
+        }
+
+        function showMessage(message, type, tabId) {
+            const msgElement = document.getElementById(tabId + 'Message');
+            msgElement.innerText = message;
+            msgElement.className = 'message show ' + type;
+            setTimeout(() => msgElement.classList.remove('show'), 3000);
+        }
+
+        function setCrashMultiplier() {
+            const value = parseFloat(document.getElementById('crashMultiplier').value);
+            if (!value || value < 1 || value > 100) {
+                showMessage('❌ সঠিক মাল্টিপ্লায়ার লিখুন (1-100)', 'error', 'gameControl');
+                return;
+            }
+            localStorage.setItem(CRASH_KEY, value);
+            document.getElementById('nextCrash').innerText = value.toFixed(2) + 'x';
+            showMessage('✅ ক্রাশ মাল্টিপ্লায়ার সেট হয়েছে: ' + value.toFixed(2) + 'x', 'success', 'gameControl');
+        }
+
+        function triggerGameStart() {
+            localStorage.setItem(GAME_STATUS_KEY, 'running');
+            showMessage('✅ গেম শুরু সিগন্যাল পাঠানো হয়েছে', 'success', 'gameControl');
+            updateGameStatus();
+        }
+
+        function triggerGameCrash() {
+            localStorage.setItem(GAME_STATUS_KEY, 'crashed');
+            showMessage('✅ গেম ক্র্যাশ সিগন্যাল পাঠানো হয়েছে', 'success', 'gameControl');
+            updateGameStatus();
+        }
+
+        function updateGameStatus() {
+            const nextCrash = parseFloat(localStorage.getItem(CRASH_KEY)) || 2.0;
+            document.getElementById('nextCrash').innerText = nextCrash.toFixed(2) + 'x';
+            document.getElementById('currentMultiplier').innerText = '1.00x';
+            const status = localStorage.getItem(GAME_STATUS_KEY) || 'stopped';
+            const statusDisplay = status === 'running' ? '▶️ চলছে' : status === 'crashed' ? '💥 ক্র্যাশ' : '⏹️ বন্ধ';
+            document.getElementById('gameStatus').innerText = statusDisplay;
+        }
+
+        function addPlayer() {
+            const name = document.getElementById('playerName').value.trim();
+            const balance = parseFloat(document.getElementById('playerBalance').value);
+            
+            if (!name || !balance || balance < 0) {
+                showMessage('❌ সঠিক তথ্য লিখুন', 'error', 'players');
+                return;
+            }
+
+            let players = JSON.parse(localStorage.getItem(PLAYERS_KEY)) || {};
+            players[name] = {
+                balance: balance,
+                created: new Date().toISOString()
+            };
+            localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
+            
+            document.getElementById('playerName').value = '';
+            document.getElementById('playerBalance').value = '';
+            
+            showMessage('✅ প্লেয়ার যোগ করা হয়েছে', 'success', 'players');
+            loadPlayersList();
+        }
+
+        function removePlayer(name) {
+            if (!confirm('সত্যি এই প্লেয়ার ডিলিট করবেন?')) return;
+            
+            let players = JSON.parse(localStorage.getItem(PLAYERS_KEY)) || {};
+            delete players[name];
+            localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
+            
+            showMessage('✅ প্লেয়ার ডিলিট করা হয়েছে', 'success', 'players');
+            loadPlayersList();
+        }
+
+        function addBalance(name) {
+            const amount = prompt('কত টাকা যোগ করবেন?');
+            if (!amount) return;
+            
+            let players = JSON.parse(localStorage.getItem(PLAYERS_KEY)) || {};
+            if (players[name]) {
+                players[name].balance += parseFloat(amount);
+                localStorage.setItem(PLAYERS_KEY, JSON.stringify(players));
+                showMessage('✅ ব্যালেন্স যোগ করা হয়েছে', 'success', 'players');
+                loadPlayersList();
+            }
+        }
+
+        function loadPlayersList() {
+            const players = JSON.parse(localStorage.getItem(PLAYERS_KEY)) || {};
+            const listDiv = document.getElementById('playersList');
+            
+            if (Object.keys(players).length === 0) {
+                listDiv.innerHTML = '<div style="text-align: center; padding: 20px; color: #666;">কোন প্লেয়ার নেই</div>';
+                return;
+            }
+
+            listDiv.innerHTML = Object.entries(players).map(([name, data]) => `
+                <div class="player-item">
+                    <div class="player-info">
+                        <div class="player-name">${name}</div>
+                        <div class="player-balance">৳${Math.floor(data.balance)}</div>
+                    </div>
+                    <div class="action-buttons">
+                        <button class="btn-success" onclick="addBalance('${name}')" style="background: #28a745;">➕ যোগ করুন</button>
+                        <button class="btn-danger" onclick="removePlayer('${name}')">🗑️ ডিলিট</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function refreshStats() {
+            const players = JSON.parse(localStorage.getItem(PLAYERS_KEY)) || {};
+            const totalPlayers = Object.keys(players).length;
+            const totalBalance = Object.values(players).reduce((sum, p) => sum + p.balance, 0);
+            
+            document.getElementById('totalPlayers').innerText = totalPlayers;
+            document.getElementById('totalBalance').innerText = Math.floor(totalBalance);
+        }
+
+        function saveBetSettings() {
+            const minBet = parseFloat(document.getElementById('minBet').value);
+            const maxBet = parseFloat(document.getElementById('maxBet').value);
+            
+            if (minBet >= maxBet) {
+                showMessage('❌ মিনিমাম বেট ম্যাক্সিমামের চেয়ে কম হতে হবে', 'error', 'settings');
+                return;
+            }
+
+            localStorage.setItem('minBet', minBet);
+            localStorage.setItem('maxBet', maxBet);
+            showMessage('✅ বেট সেটিংস সেভ করা হয়েছে', 'success', 'settings');
+        }
+
+        function savePaymentNumber() {
+            const number = document.getElementById('paymentNumber').value.trim();
+            if (!number) {
+                showMessage('❌ পেমেন্ট নম্বর লিখুন', 'error', 'settings');
+                return;
+            }
+            localStorage.setItem('paymentNumber', number);
+            showMessage('✅ পেমেন্ট নম্বর সেভ করা হয়েছে', 'success', 'settings');
+        }
+
+        function clearAllDeposits() {
+            if (!confirm('সব ডিপোজিট রিকর্ড পুরোপুরি ডিলিট হবে! চালিয়ে যাবেন?')) return;
+            localStorage.removeItem(DEPOSITS_KEY);
+            showMessage('✅ সব ডিপোজিট রিকর্ড ডিলিট করা হয়েছে', 'success', 'settings');
+        }
+
+        function clearAllWithdraws() {
+            if (!confirm('সব উইথড্র রিকর্ড পুরোপুরি ডিলিট হবে! চালিয়ে যাবেন?')) return;
+            localStorage.removeItem(WITHDRAWS_KEY);
+            showMessage('✅ সব উইথড্র রিকর্ড ডিলিট করা হয়েছে', 'success', 'settings');
+        }
+
+        function resetAllData() {
+            if (!confirm('সত্যি সব ডেটা রিসেট করবেন? এটা পুনরাবৃত্তি করা যাবে না!')) return;
+            localStorage.clear();
+            showMessage('✅ সব ডেটা রিসেট করা হয়েছে', 'success', 'dashboard');
+            refreshStats();
+        }
+
+        // লোড করার সময়
+        window.addEventListener('load', () => {
+            refreshStats();
+            updateGameStatus();
+        });
+    </script>
+</body>
+</html>
